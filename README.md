@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.1.0--beta-blueviolet.svg)](https://github.com/Miracle-Studios/MSLib/releases)
 [![License](https://img.shields.io/badge/license-BSD%203--Clause-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.6%2B-blue.svg)]()
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)]()
 [![Telegram](https://img.shields.io/badge/Telegram-@MiracleStudios-0088cc.svg)](https://t.me/MiracleStudios)
 
 </div>
@@ -82,7 +82,7 @@ Comprehensive guides and API documentation:
 ## 🛠️ Requirements
 
 - **exteraGram** 12.0.0 or higher
-- **Python** 3.6+
+- **Python** 3.11+
 
 ## 💡 Why MSLib?
 
