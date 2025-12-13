@@ -1,6 +1,6 @@
-releases/
+Releases/
 Telegram/
-templates/
+Templates/
 __pycache__/
 *.pyc
 *.pyo
