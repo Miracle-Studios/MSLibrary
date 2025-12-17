@@ -77,21 +77,9 @@ def _init_constants():
 
 # ==================== Utilities ====================
 def pluralization_string(count: int, forms: List[str]) -> str:
-    """
-    Возвращает правильную форму слова в зависимости от числа
-    
-    Args:
-        count: Число
-        forms: Список форм ["форма1", "форма2", "форма5"] (для русского)
-               Для английского: ["singular", "plural"]
-    
-    Example:
-        pluralization_string(1, ["плагин", "плагина", "плагинов"]) -> "1 плагин"
-        pluralization_string(5, ["plugin", "plugins"]) -> "5 plugins"
-    """
-    if len(forms) == 2:  # Английский
+    if len(forms) == 2:
         return f"{count} {forms[1] if count != 1 else forms[0]}"
-    elif len(forms) == 3:  # Русский
+    elif len(forms) == 3:
         if count % 10 == 1 and count % 100 != 11:
             return f"{count} {forms[0]}"
         elif 2 <= count % 10 <= 4 and (count % 100 < 10 or count % 100 >= 20):
@@ -102,7 +90,6 @@ def pluralization_string(count: int, forms: List[str]) -> str:
         return f"{count} {forms[0]}"
 
 def get_locale() -> str:
-    """Возвращает текущую локаль"""
     return LOCALE
 
 # ==================== Logging utilities ====================
@@ -173,7 +160,6 @@ class RawEntity:
     extra: Optional[str] = None
     
     def to_tlrpc_object(self) -> 'TLRPC.MessageEntity':
-        """Converts RawEntity to TLRPC.MessageEntity"""
         if self.type == TLEntityType.BOLD:
             entity = TLRPC.TL_messageEntityBold()
         elif self.type == TLEntityType.ITALIC:
@@ -210,7 +196,6 @@ class RawEntity:
 
 @dataclass
 class ParsedMessage:
-    """Result of parsing markdown or HTML"""
     text: str
     entities: List[RawEntity]
 
@@ -327,8 +312,6 @@ class Markdown:
     def parse(text: str, strict: bool = False) -> ParsedMessage:
         """Parse Markdown text and return ParsedMessage with plain text and entities"""
         entities = []
-        
-        # Store format markers with their positions for removal
         markers_to_remove = []
         
         # Bold (**text**)
@@ -365,32 +348,23 @@ class Markdown:
             if not any(m[0] <= start < m[1] for m in markers_to_remove):
                 markers_to_remove.append((start, match.end(), content))
         
-        # Sort markers by position (reverse to remove from end)
         markers_to_remove.sort(key=lambda x: x[0], reverse=True)
         
-        # Build clean text and track offset changes
         clean_text = text
-        offset_map = {}  # original_pos -> new_pos
+        offset_map = {}
         
         for start, end, content in markers_to_remove:
-            # Calculate shift
             marker_len = end - start
             content_len = len(content)
             shift = marker_len - content_len
-            
-            # Update offset map
             offset_map[start] = (start, shift)
-            
-            # Replace in text
+
             clean_text = clean_text[:start] + content + clean_text[end:]
-        
-        # Now parse again to create entities with correct offsets
-        # Bold
+
         for match in re.finditer(r'\*\*(.+?)\*\*', text):
             original_start = match.start()
             content_len = len(match.group(1))
-            
-            # Calculate new offset
+
             new_offset = original_start
             for pos, (orig_pos, shift) in offset_map.items():
                 if orig_pos < original_start:
@@ -401,8 +375,7 @@ class Markdown:
                 new_offset,
                 content_len
             ))
-        
-        # Strikethrough
+
         for match in re.finditer(r'~~(.+?)~~', text):
             original_start = match.start()
             content_len = len(match.group(1))
@@ -417,8 +390,7 @@ class Markdown:
                 new_offset,
                 content_len
             ))
-        
-        # Code
+
         for match in re.finditer(r'`([^`]+)`', text):
             original_start = match.start()
             content_len = len(match.group(1))
@@ -433,8 +405,7 @@ class Markdown:
                 new_offset,
                 content_len
             ))
-        
-        # Spoiler
+
         for match in re.finditer(r'\|\|(.+?)\|\|', text):
             original_start = match.start()
             content_len = len(match.group(1))
@@ -449,8 +420,7 @@ class Markdown:
                 new_offset,
                 content_len
             ))
-        
-        # Italic (single *)
+
         for match in re.finditer(r'(?<!\*)\*([^*]+)\*(?!\*)', text):
             original_start = match.start()
             content_len = len(match.group(1))
@@ -465,8 +435,7 @@ class Markdown:
                 new_offset,
                 content_len
             ))
-        
-        # Sort entities by offset
+
         entities.sort(key=lambda e: e.offset)
         
         return ParsedMessage(text=add_surrogates(clean_text), entities=entities)
